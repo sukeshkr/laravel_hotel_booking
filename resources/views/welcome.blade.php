@@ -12,10 +12,10 @@
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
 
 	<!-- Bootstrap -->
-	<link type="text/css" rel="stylesheet" href="{{asset('assets/css/bootstrap.min.css')}}" />
+	<link type="text/css" rel="stylesheet" href="{{asset('web-assets/css/bootstrap.min.css')}}" />
 
 	<!-- Custom stlylesheet -->
-	<link type="text/css" rel="stylesheet" href="{{asset('assets/css/style.css')}}" />
+	<link type="text/css" rel="stylesheet" href="{{asset('web-assets/css/style.css')}}" />
 
 </head>
 
@@ -35,22 +35,26 @@
 					</div>
 					<div class="col-md-4 col-md-pull-7">
 						<div class="booking-form">
-							<form>
+							<form action="{{route('check.availability')}}" method="POST">
+                                @csrf
 								<div class="form-group">
 									<span class="form-label">Your Destination</span>
-									<input class="form-control" type="text" placeholder="Enter a destination or hotel name">
+									<input class="form-control" name="destination" id="target" type="text" placeholder="Enter a destination or hotel name">
+                                    <div id="search-res" style="display:none">
+                                        <ul></ul>
+                                    </div>
 								</div>
 								<div class="row">
 									<div class="col-sm-6">
 										<div class="form-group">
 											<span class="form-label">Check In</span>
-											<input class="form-control" type="date" required>
+											<input name="check_in" class="form-control" type="date" required>
 										</div>
 									</div>
 									<div class="col-sm-6">
 										<div class="form-group">
 											<span class="form-label">Check out</span>
-											<input class="form-control" type="date" required>
+											<input name="check_out" class="form-control" type="date" required>
 										</div>
 									</div>
 								</div>
@@ -58,7 +62,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<span class="form-label">Rooms</span>
-											<select class="form-control">
+											<select name="rooms" class="form-control">
 												<option>1</option>
 												<option>2</option>
 												<option>3</option>
@@ -69,7 +73,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<span class="form-label">Adults</span>
-											<select class="form-control">
+											<select name="adults" class="form-control">
 												<option>1</option>
 												<option>2</option>
 												<option>3</option>
@@ -80,7 +84,7 @@
 									<div class="col-sm-4">
 										<div class="form-group">
 											<span class="form-label">Children</span>
-											<select class="form-control">
+											<select name="children" class="form-control">
 												<option>0</option>
 												<option>1</option>
 												<option>2</option>
@@ -100,5 +104,38 @@
 		</div>
 	</div>
 </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 
+<script>
+	$("#target").keyup(function(){
+
+		var txtVal = this.value;
+		$.ajax({
+            type: 'get',
+            url: "{{ route('search.data') }}",
+            data: 'rowVal=' + txtVal, //Pass $id
+            success: function (data) {
+                printErrorMsg(data.result);
+            }
+        });
+	});
+
+    function printErrorMsg (msg) {
+
+        $("#search-res").find("ul").html('');
+        $("#search-res").css('display','block');
+
+        $.each( msg, function( key, value ) {
+
+            var data = "'"+value['location']+"'";
+            $("#search-res").find("ul").append('<li onclick="fill('+data+')"><a href="#">'+value['location']+'</a></</li>');
+        });
+    }
+
+    function fill(data) {
+
+        $('#target').val(data)
+        $("#search-res").hide();
+    }
+</script>
 </html>
